@@ -2,6 +2,7 @@ namespace candidateapi.Models
 {
     public class Candidate
     {
+        public int Id { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
         public int phoneNumber { get; set; }
