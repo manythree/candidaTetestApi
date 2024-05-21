@@ -1,5 +1,6 @@
 using candidateapi.Business;
 using candidateapi.Data;
+using candidateapi.IRepository;
 using candidateapi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,37 +13,15 @@ namespace candidateapi.Controllers
     
         private readonly ILogger<CanidateController> _logger;
 
-        private readonly BusinessCandidate businessCandidate ; 
+        private readonly ICandidateRepository _repository;
 
 
-        public CanidateController(BusinessCandidate BusinessCandidate)
+        public CanidateController(ICandidateRepository repository)
         {
-            businessCandidate = BusinessCandidate;
+            _repository = repository;
         }
         
-        [HttpGet(Name = "getCandidates")]
-        public ActionResult<List<Candidate>> getCandidates()
-        {
-            return Ok(this.businessCandidate.getAllCandidates());
-        }
-        
-        [HttpPost("add", Name = "addCandidate")]
-        public IActionResult addCandidate([FromBody]Candidate candidate)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var reslult = this.businessCandidate.addCandidate(candidate);
-            if (reslult == true)
-            {
-                return Ok();
-            }
-
-            return BadRequest("Try Again!");
-        }
-
-        [HttpPut("update", Name = "updateCandidate")]
+        [HttpPut("addorupdate", Name = "updateCandidate")]
         public IActionResult updateCandidate([FromBody] Candidate candidate)
         {
             if (!ModelState.IsValid)
@@ -50,12 +29,17 @@ namespace candidateapi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = this.businessCandidate.updateData(candidate);
+            if (candidate.firstName == null || candidate.lastName == null || candidate.Email == null || candidate.freeTextComment == null)
+            {
+                return BadRequest("Required data should not be empty");
+            }
+
+            var result = _repository.addOrupdateData(candidate);
             if (result == true)
             {
-                return Ok();
+                return Ok(_repository.getAllCandidates());
             }
-            return BadRequest("Data wan't updated");
+            return BadRequest("Something went wrong when adding or updating data");
             
         }
     }

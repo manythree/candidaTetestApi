@@ -62,6 +62,9 @@ namespace candidateapi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Candidats");
                 });
 #pragma warning restore 612, 618

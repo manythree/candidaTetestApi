@@ -18,6 +18,12 @@ namespace candidateapi.Data
         }
         public DbSet<Candidate> Candidats { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Candidate>()
+                .HasIndex(c => c.Email)
+                .IsUnique();
+        }
 
 
     }

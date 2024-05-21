@@ -1,12 +1,13 @@
 ﻿using candidateapi.Controllers;
 using candidateapi.Data;
+using candidateapi.IRepository;
 using candidateapi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace candidateapi.Business
 {
-    public class BusinessCandidate
+    public class BusinessCandidate:ICandidateRepository
     {
         AppDbContext _context;
 
@@ -23,15 +24,21 @@ namespace candidateapi.Business
 
         public bool addCandidate(Candidate candidate)
         {
-            _context.Candidats.Add(candidate);
-            _context.SaveChanges();
-            return true;
-        }
+            try
+            {
+                _context.Candidats.Add(candidate);
+                _context.SaveChanges();
+                return true;
 
-        public bool updateData(Candidate candidate)
+            }
+            catch (Exception ex) {
+                return false;
+            }
+            
+        }
+        public bool updateCandidate(Candidate candidateToUpdate, Candidate candidate)
         {
-            var candidateToUpdate = _context.Candidats.Where(x => x.Id == candidate.Id).FirstOrDefault();
-            if (candidateToUpdate != null)
+            try
             {
                 candidateToUpdate.firstName = candidate.firstName;
                 candidateToUpdate.lastName = candidate.lastName;
@@ -44,10 +51,30 @@ namespace candidateapi.Business
                 _context.Update(candidateToUpdate);
                 _context.SaveChanges();
                 return true;
+
             }
-            return false;
+            catch (Exception ex)
+            {
+                return false;
+            }
+
         }
 
+       
 
+        public bool addOrupdateData(Candidate candidate)
+        {
+            var candidateToUpdate = _context.Candidats.Where(x => x.Id == candidate.Id).FirstOrDefault();
+            if (candidateToUpdate != null)
+            {
+                bool updateResult = this.updateCandidate(candidateToUpdate, candidate);
+                return updateResult;
+            }
+            else
+            {
+                bool result = this.addCandidate(candidate);
+                return result;
+            }
+        }
     }
 }
